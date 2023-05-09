@@ -1,7 +1,8 @@
 {
-    "name": "metis-workshop",
-    "version": "1.0.0",
-    "scripts": {},
-    "repository": "https://github.com/Think-and-Dev/Metis-workshop.git",
-    "license": "MIT"
+  "name": "metis-workshop",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Think-and-Dev/Metis-workshop.git",
+  "author": "AlejoLovallo <alejoe.lovallo@gmail.com>",
+  "license": "MIT"
 }
