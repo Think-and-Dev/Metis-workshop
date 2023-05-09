@@ -1,0 +1,5 @@
+.DS_Store
+dapp/node_modules
+contracts/node_modules
+tasks.md
+.vscode
