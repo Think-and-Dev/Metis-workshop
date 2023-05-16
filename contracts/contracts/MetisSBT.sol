@@ -18,6 +18,7 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
 
     mapping(uint256 => bool) private lockedSBTs;
     mapping(uint256 => bool) private availableToMint;
+    mapping(uint256 => bool) private votes;
 
     constructor() ERC721("MetisSBT", "MSBT") {
         // emit MetisSBTInitialized();
@@ -73,6 +74,7 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
 
         //mint sbt
         lockedSBTs[_tokenId] = true;
+        availableToMint[_tokenId] = false;
         _safeMint(_to, _tokenId);
         super._setTokenURI(_tokenId, _uri);
 
