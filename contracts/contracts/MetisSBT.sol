@@ -15,14 +15,11 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
 
     /// @dev ContractUri
     string public contractUri;
-    uint256 public immutable CAP;
 
     mapping(uint256 => bool) private lockedSBTs;
     mapping(uint256 => bool) private availableToMint;
 
-    constructor(uint256 _cap) ERC721("MetisSBT", "MSBT") {
-        require(_cap > 0, "INVALID CAP");
-        CAP = _cap;
+    constructor() ERC721("MetisSBT", "MSBT") {
         // emit MetisSBTInitialized();
     }
 
@@ -48,19 +45,11 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
         return tokenId;
     }
 
-    function mintBatchByRole(address[] memory _to, string memory _uri, bytes32 _role) external onlyOwner {
-        for (uint256 i = 0; i < _to.length; i++) {
-            _checkMint(_to[i], _uri);
-            _mintSBT(_to[i], _uri);
-        }
-    }
-
     /// @notice Lazy Mint NFTs
     /// @return id of the next NFT to be minted
     function safeLazyMint() external onlyOwner returns (uint256) {
         _tokenIdCounter.increment();
         uint256 currentTokenId = _tokenIdCounter.current();
-        require(currentTokenId <= CAP, "NFTCAPPED: cap exceeded");
         availableToMint[currentTokenId] = true;
         return currentTokenId;
     }
@@ -70,7 +59,6 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
     /// @return id of the next NFT to be minted
     function safeLazyMintBatch(uint256 quantity) external onlyOwner returns (uint256) {
         uint256 currentTokenId = _tokenIdCounter.current();
-        require(currentTokenId + quantity <= CAP, "NFTCAPPED: cap exceeded");
         for (uint256 i = 0; i < quantity; i++) {
             _tokenIdCounter.increment();
             currentTokenId = _tokenIdCounter.current();
@@ -94,8 +82,10 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
         return _tokenId;
     }
 
-    function _checkMint(address _to, string memory _uri) internal onlyOwner {
+    function _checkMint(address _to, string memory _uri) internal view onlyOwner {
         require(_to != address(0), "MetisSBT: Invalid address");
+        require(balanceOf(_to) == 0, "MetisSBT: User already has SBT");
+        require(bytes(_uri).length > 0, "MetisSBT: Empty URI");
     }
 
     /// @custom:notice The following function is override required by Solidity.
