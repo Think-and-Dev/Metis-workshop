@@ -16,9 +16,13 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
     /// @dev ContractUri
     string public contractUri;
 
+    address public METIS_VOTE;
+
     mapping(uint256 => bool) private lockedSBTs;
     mapping(uint256 => bool) private availableToMint;
-    mapping(uint256 => bool) private votes;
+
+    //ELECTIONID -> USER -> FALSE | TRUE
+    mapping(uint256 => mapping(uint256 => bool)) public votes;
 
     constructor() ERC721("MetisSBT", "MSBT") {
         // emit MetisSBTInitialized();
@@ -29,6 +33,12 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
     function setContractURI(string memory _contractUri) external onlyOwner {
         contractUri = _contractUri;
         emit ContractURIUpdated(contractUri);
+    }
+
+    function setMetisVote(address _metisVote) external onlyOwner {
+        require(_metisVote != address(0), "MetisSBT: INVALID ADDRESS");
+        METIS_VOTE = _metisVote;
+        emit MetisVoteSet(_metisVote);
     }
 
     /// @custom:notice The following function is override required by Solidity.
@@ -66,6 +76,18 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
             availableToMint[currentTokenId] = true;
         }
         return currentTokenId;
+    }
+
+    // function claim() external returns (uint256) {}
+
+    function addVote(uint256 _electionId, uint256 _tokenId) external onlyMetisVote {
+        require(!availableToMint[_tokenId], "MetisSBT: Token is free to mint");
+        require(lockedSBTs[_tokenId], "MetisSBT: token is free to mint");
+        require(ownerOf(_tokenId) != address(0), "MetisSBT: token has no owner");
+
+        votes[_electionId][_tokenId] = true;
+
+        emit VoteAdded(_tokenId, _electionId);
     }
 
     function _mintSBT(address _to, string memory _uri) internal onlyOwner returns (uint256) {
@@ -116,5 +138,10 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
 
     function safeTransferFrom(address, address, uint256, bytes memory) public pure override {
         revert TransferForbidden("NO TRANSFER FROM ALLOWED");
+    }
+
+    modifier onlyMetisVote() {
+        require(msg.sender == METIS_VOTE, "MetisSBT: ONLY METIS VOTE CONTRACT");
+        _;
     }
 }

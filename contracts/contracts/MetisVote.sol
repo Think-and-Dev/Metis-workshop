@@ -3,6 +3,8 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 import "./interfaces/IMetisVote.sol";
 import "./interfaces/IMetisSBT.sol";
 
@@ -16,8 +18,8 @@ contract MetisVote is IMetisVote, Ownable {
     bytes32 public constant CANDIDATE_STATUS = keccak256("CANDIDATE_STATUS");
     bytes32 public constant ELECTED_STATUS = keccak256("ELECTED_STATUS");
 
-    mapping(address => Candidate) candidates;
     mapping(uint256 => Election) elections;
+    mapping(uint256 => mapping(address => Candidate)) candidates;
 
     constructor(address _metisSBT) validAddress(_metisSBT) {
         METIS_SBT = _metisSBT;
@@ -26,9 +28,19 @@ contract MetisVote is IMetisVote, Ownable {
 
     /**************************** GETTERS  ****************************/
 
-    function isActiveElection(uint256 _electionId) external view returns (bool) {}
+    function isActiveElection(uint256 _electionId) external view returns (bool) {
+        return _isActiveElection(_electionId);
+    }
 
-    function getCandidateVotes(uint256 _electionId, address _candidate) external view returns (uint256) {}
+    function getCandidateVotes(
+        uint256 _electionId,
+        address _candidate
+    ) external view validAddress(_candidate) returns (uint256) {
+        if (candidates[_electionId][_candidate].status == bytes32(0)) {
+            revert NotACandidate(_candidate);
+        }
+        return candidates[_electionId][_candidate].votes;
+    }
 
     /**************************** INTERFACE  ****************************/
 
@@ -56,7 +68,17 @@ contract MetisVote is IMetisVote, Ownable {
         }
     }
 
-    function vote(uint256 _electionId, address _candidate) external validAddress(_candidate) {}
+    function vote(uint256 _electionId, address _candidate, uint256 _tokenId) external validAddress(_candidate) {
+        require(_isActiveElection(_electionId), "MetisVote: Invalid Election");
+        require(_isValidCandidate(_electionId, _candidate), "MetisVote: Invalid Candidate");
+        require(IERC721(METIS_SBT).balanceOf(msg.sender) == 1, "MetisVote: No vote allowed");
+        require(IERC721(METIS_SBT).ownerOf(_tokenId) == msg.sender, "MetisVote: Not owner of the SBT");
+
+        candidates[_electionId][_candidate].votes += 1;
+        IMetisSBT(METIS_SBT).addVote(_electionId, _tokenId);
+
+        emit Vote(_electionId, _candidate);
+    }
 
     /**************************** INTERNALS  ****************************/
 
@@ -68,9 +90,9 @@ contract MetisVote is IMetisVote, Ownable {
         require(_party.length > 0, "MetisVote: Invalid party");
         require(_person != address(0), "MetisVote: Invalid candidate address");
 
-        Candidate memory newCandidate = Candidate({electionId: _electionId, party: _party, status: CANDIDATE_STATUS});
+        Candidate memory newCandidate = Candidate({party: _party, status: CANDIDATE_STATUS, votes: 0});
 
-        candidates[_person] = newCandidate;
+        candidates[_electionId][_person] = newCandidate;
         emit CandidateAdded(_electionId, _party, _person);
     }
 
@@ -79,6 +101,22 @@ contract MetisVote is IMetisVote, Ownable {
         require(block.timestamp >= _startTime, "MetisVote: Invalid start time");
         require(_startTime > _endTime, "MetisVote: Invalid end time");
     }
+
+    function _isActiveElection(uint256 _electionId) internal view returns (bool) {
+        if (block.timestamp >= elections[_electionId].startTime && block.timestamp < elections[_electionId].endTime) {
+            return true;
+        }
+        return false;
+    }
+
+    function _isValidCandidate(uint256 _electionId, address _candidate) internal view returns (bool) {
+        if (candidates[_electionId][_candidate].status == bytes32(0)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**************************** MODIFIERS  ****************************/
 
     modifier validAddress(address _adr) {
         require(_adr != address(0), "MetisVote: Invalid address");
