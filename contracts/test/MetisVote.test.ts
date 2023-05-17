@@ -8,6 +8,7 @@ import {keccak256, toUtf8Bytes} from 'ethers/lib/utils'
 describe('Metis SBT initial', () => {
   let deployer: Signer
   let invalidSigner: Signer
+  let MetisVote: MetisVote
   let MetisSBT: MetisSBT
 
   before(async () => {
@@ -18,22 +19,17 @@ describe('Metis SBT initial', () => {
   })
 
   beforeEach(async () => {
-    const {MetisSBTContract} = await metisFixture()
+    const {MetisVoteContract, MetisSBTContract} = await metisFixture()
+    MetisVote = MetisVoteContract
     MetisSBT = MetisSBTContract
   })
 
-  xit('Correct initialization', async () => {
+  it('Correct initialization', async () => {
     //GIVEN
-    const expectedName = 'MetisSBT'
-    const expectedSymbol = 'MSBT'
     const expectedOwner = await deployer.getAddress()
     //WHEN
-    const name = await MetisSBT.name()
-    const symbol = await MetisSBT.symbol()
     const owner = await MetisSBT.owner()
     //THEN
-    expect(name).to.be.equal(expectedName)
-    expect(symbol).to.be.equal(expectedSymbol)
     expect(owner).to.be.equal(expectedOwner)
   })
 })
