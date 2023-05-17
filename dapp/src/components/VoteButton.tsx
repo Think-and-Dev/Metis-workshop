@@ -1,5 +1,3 @@
-import { web3AuthContext } from "@/contexts/web3AuthContext";
-import { IWeb3AuthContext } from "@/types/contexts/IWeb3AuthContext";
 import { useContext, useState } from "react";
 
 interface IVoteButton {
@@ -10,21 +8,20 @@ export const VoteButton = (props: IVoteButton) => {
     const [hasSbt, setHasSbt] = useState<boolean>(false);
     const [alreadyVoted, setAlreadyVoted] = useState<boolean>(false);
     const { voteFor } = props;
-    const { publicKey, login, isWeb3AuthInit } = useContext(web3AuthContext) as IWeb3AuthContext;
 
-    const handleClick = async () => {
-        if (!publicKey) {
-            login();
-            return;
-        }
+    // const handleClick = async () => {
+    //     if (!publicKey) {
+    //         login();
+    //         return;
+    //     }
 
-        if (!hasSbt) {
-            return
-        }
+    //     if (!hasSbt) {
+    //         return
+    //     }
 
-        alert('Voted for ' + voteFor)
-        setAlreadyVoted(true)
-    }
+    //     alert('Voted for ' + voteFor)
+    //     setAlreadyVoted(true)
+    // }
 
     const handleMintSbt = async () => {
         alert('SBT MINTED')
@@ -32,7 +29,7 @@ export const VoteButton = (props: IVoteButton) => {
     }
 
     return <>
-        {
+        {/* {
             alreadyVoted ? (<button className="btn btn-outline rounded-md" disabled={true}>You already voted</button>) : (
                 <>
                     {
@@ -49,6 +46,6 @@ export const VoteButton = (props: IVoteButton) => {
                     </div>
                 </>
             )
-        }
+        } */}
     </>
 }
