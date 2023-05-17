@@ -25,6 +25,8 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
     mapping(uint256 => mapping(uint256 => bool)) public votes;
 
     constructor() ERC721("MetisSBT", "MSBT") {
+        /// @dev Doing this because first SBT has to be one and not zero.
+        _tokenIdCounter.increment();
         emit MetisSBTInitialized();
     }
 
@@ -72,9 +74,9 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
     /// @notice Lazy Mint NFTs
     /// @return id of the next NFT to be minted
     function safeLazyMint() external onlyOwner returns (uint256) {
-        _tokenIdCounter.increment();
         uint256 currentTokenId = _tokenIdCounter.current();
         availableToMint[currentTokenId] = true;
+        _tokenIdCounter.increment();
         return currentTokenId;
     }
 
@@ -84,9 +86,9 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
     function safeLazyMintBatch(uint256 quantity) external onlyOwner returns (uint256) {
         uint256 currentTokenId = _tokenIdCounter.current();
         for (uint256 i = 0; i < quantity; i++) {
-            _tokenIdCounter.increment();
             currentTokenId = _tokenIdCounter.current();
             availableToMint[currentTokenId] = true;
+            _tokenIdCounter.increment();
         }
         return currentTokenId;
     }
