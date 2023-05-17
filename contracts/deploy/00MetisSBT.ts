@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deploy} = deployments
   const {deployer} = await getNamedAccounts()
 
-  printInfo(`\n Deploying ${ContractName} contract on ${network.name}...`)
+  printInfo(`\nDeploying ${ContractName} contract on ${network.name}...`)
 
   const MetisSBTResult = await deploy(ContractName, {
     args: [],

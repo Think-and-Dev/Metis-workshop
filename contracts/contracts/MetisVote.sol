@@ -12,7 +12,6 @@ contract MetisVote is IMetisVote, Ownable {
     using Counters for Counters.Counter;
 
     address public immutable METIS_SBT;
-    /// @dev Private counter to make internal security checks
     Counters.Counter private _electionIdCounter;
 
     bytes32 public constant CANDIDATE_STATUS = keccak256("CANDIDATE_STATUS");
@@ -80,6 +79,11 @@ contract MetisVote is IMetisVote, Ownable {
         emit Vote(_electionId, _candidate);
     }
 
+    /*
+    function closeElection(uint256 _electionId) external {
+
+    }
+    */
     /**************************** INTERNALS  ****************************/
 
     function _addCandidate(uint256 _electionId, bytes32 _party, address _person) internal onlyOwner {
