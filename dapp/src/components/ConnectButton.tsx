@@ -1,16 +1,14 @@
-export const ConnectButton = () => {
-    // const { login, publicKey, isWeb3AuthInit } = useWeb3Auth();
+import { useConnect } from "wagmi"
+import { InjectedConnector } from 'wagmi/connectors/injected'
 
-    // const handleLogin = async () => {
-    //     await login();
-    // }
+export const ConnectButton = () => {
+    const { connect } = useConnect({
+        connector: new InjectedConnector(),
+    })
 
     return <>
-        {/* {
-            publicKey ? <p>{publicKey}</p>
-                : <button disabled={!isWeb3AuthInit} color="transparent" onClick={handleLogin} className="btn sm:h-9 text-white font-semibold">
-                    <h3>Connect</h3>
-                </button>
-        } */}
+        <button color="transparent" onClick={() => connect()} className="btn sm:h-9 text-white font-semibold">
+            <h3>Connect</h3>
+        </button>
     </>
 }
