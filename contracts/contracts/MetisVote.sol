@@ -17,6 +17,7 @@ contract MetisVote is IMetisVote, Ownable {
     bytes32 public constant CANDIDATE_STATUS = keccak256("CANDIDATE_STATUS");
     bytes32 public constant ELECTED_STATUS = keccak256("ELECTED_STATUS");
 
+    /// @dev ElectionId => Election
     mapping(uint256 => Election) elections;
     mapping(uint256 => mapping(address => Candidate)) candidates;
 

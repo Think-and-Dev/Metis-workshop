@@ -9,7 +9,7 @@ interface IMetisVote {
     }
 
     struct Election {
-        bytes32 position;
+        bytes32 position; //GOVERNADOR || PRESIDENTE || DIPUTADO
         uint256 startTime;
         uint256 endTime;
     }

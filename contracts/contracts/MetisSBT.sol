@@ -10,8 +10,8 @@ import "./interfaces/IERC5192.sol";
 
 contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
     using Counters for Counters.Counter;
-    /// @dev Private counter to make internal security checks
-    Counters.Counter private _tokenIdCounter;
+    /// @dev Public counter to make internal security checks
+    Counters.Counter public _tokenIdCounter;
 
     /// @dev ContractUri
     string public contractUri;
