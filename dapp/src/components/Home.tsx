@@ -35,9 +35,14 @@ export const Home = () => {
                             <div className="mt-8 flex-1 lg:mx-12 lg:mt-0">
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                                     {
-                                        getLast3Events().map((votationId) => (
-                                            <HomeCard votationId={votationId} />
-                                        ))
+                                        getLast3Events().length > 0 ?
+                                            getLast3Events().map((votationId) => (
+                                                <HomeCard votationId={votationId} key={votationId} />
+                                            )) : (
+                                                <p className="text-gray-500">
+                                                    No pending votations found.
+                                                </p>
+                                            )
                                     }
                                 </div>
                             </div>

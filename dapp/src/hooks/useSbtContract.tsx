@@ -34,8 +34,9 @@ export const useSbtContract = () => {
     const claimSbt = useContractWrite({
         address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
         abi: metisSbtContract.abi,
+        //Burned until new contract variable : _currentTokenReadyToMint gets approved
         functionName: 'claimSBT',
-        args: [Number(tokenIdCounter)],
+            args: [2],
         onError: (error) => {
             const moreThan80Chars = error.message.length > 80;
             toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);

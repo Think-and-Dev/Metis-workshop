@@ -4,6 +4,7 @@ import { useSbtContract } from "@/hooks/useSbtContract";
 import { useVoteContract } from "@/hooks/useVoteContract";
 
 interface IVoteButton {
+    electionId: number
     voteFor: string;
 }
 
@@ -15,12 +16,22 @@ export const VoteButton = (props: IVoteButton) => {
     })
     const { vote } = useVoteContract();
 
-    const { voteFor } = props;
+
+    //burned candidates
+    const candidateA = "0x17e7c0140C059883Ee73aD8b42943f58153582EA";
+    const candidateB = "0x23e335f403C4B8f23ADC86C85d4ff7d1d4bA00bb";
+
+    const { voteFor, electionId } = props;
 
     const handleClick = async () => {
         if (!isConnected) {
             connect();
             return;
+        }
+
+        if (userHasSbt) {
+            const response = vote.refetch()
+            console.log(response)
         }
     }
 

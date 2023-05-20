@@ -4,10 +4,11 @@ interface ICard {
     candidateName: string;
     imgSource: string;
     proposal: string;
+    electionId: number;
 }
 
 export const Card = (cardProps: ICard) => {
-    const { candidateName, imgSource, proposal } = cardProps;
+    const { candidateName, imgSource, proposal, electionId } = cardProps;
 
     return <div className="flex flex-col justify-center items-center">
         <div className="relative flex flex-col justify-between items-center rounded-[20px] w-[500px] h-[600px] mx-auto p-4 bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
@@ -26,7 +27,7 @@ export const Card = (cardProps: ICard) => {
             <div className="text-center text-gray-500 mt-6 mb-3 flex gap-14 md:!gap-14 px-3">
                 <p>{proposal}</p>
             </div>
-            <VoteButton voteFor={candidateName} />
+            <VoteButton voteFor={candidateName} electionId={electionId} />
         </div>
     </div>
 }
