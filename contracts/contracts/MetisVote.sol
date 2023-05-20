@@ -18,8 +18,11 @@ contract MetisVote is IMetisVote, Ownable {
     bytes32 public constant ELECTED_STATUS = keccak256("ELECTED_STATUS");
 
     /// @dev ElectionId => Election
-    mapping(uint256 => Election) elections;
-    mapping(uint256 => mapping(address => Candidate)) candidates;
+    mapping(uint256 => Election) public elections;
+    ///@dev ElectionId => user => Candidate
+    mapping(uint256 => mapping(address => Candidate)) public candidates;
+    ///@dev Voter => MetisSBT
+    mapping(address => uint256) public voters;
 
     constructor(address _metisSBT) validAddress(_metisSBT) {
         METIS_SBT = _metisSBT;
@@ -68,14 +71,24 @@ contract MetisVote is IMetisVote, Ownable {
         }
     }
 
-    function vote(uint256 _electionId, address _candidate, uint256 _tokenId) external validAddress(_candidate) {
+    function registerVoter(uint256 _tokenId) external {
+        require(IERC721(METIS_SBT).ownerOf(_tokenId) == msg.sender, "MetisVote: Not owner of SBT");
+        voters[msg.sender] = _tokenId;
+        emit VoterRegistered(msg.sender, _tokenId);
+    }
+
+    function vote(uint256 _electionId, address _candidate) external validAddress(_candidate) {
         require(_isActiveElection(_electionId), "MetisVote: Invalid Election");
         require(_isValidCandidate(_electionId, _candidate), "MetisVote: Invalid Candidate");
         require(IERC721(METIS_SBT).balanceOf(msg.sender) == 1, "MetisVote: No vote allowed");
-        require(IERC721(METIS_SBT).ownerOf(_tokenId) == msg.sender, "MetisVote: Not owner of the SBT");
+
+        uint256 voterSBT = voters[msg.sender];
+        if (voterSBT == 0) {
+            revert VoterNotRegistered();
+        }
 
         candidates[_electionId][_candidate].votes += 1;
-        IMetisSBT(METIS_SBT).addVote(_electionId, _tokenId);
+        IMetisSBT(METIS_SBT).addVote(_electionId, voterSBT);
 
         emit Vote(_electionId, _candidate);
     }
@@ -103,8 +116,8 @@ contract MetisVote is IMetisVote, Ownable {
 
     function _checkElection(bytes32 _position, uint256 _startTime, uint256 _endTime) internal view onlyOwner {
         require(_position.length > 0, "MetisVote: Invalid position");
-        require(block.timestamp >= _startTime, "MetisVote: Invalid start time");
-        require(_startTime > _endTime, "MetisVote: Invalid end time");
+        require(_startTime >= block.timestamp, "MetisVote: Invalid start time");
+        require(_endTime > _startTime, "MetisVote: Invalid end time");
     }
 
     function _isActiveElection(uint256 _electionId) internal view returns (bool) {
