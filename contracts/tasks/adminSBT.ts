@@ -4,7 +4,7 @@ import {printError, printInfo, printSuccess} from '../utils'
 import {MetisSBT} from '../typechain-types'
 
 export const tasks = () => {
-  task('setContractUri', 'Set Contract URI')
+  task('set-contract-uri', 'Set Contract URI')
     .addParam('uri', 'Contract URI')
     .setAction(async ({uri}, {deployments, ethers, network}) => {
       const [admin]: SignerWithAddress[] = await ethers.getSigners()
@@ -20,7 +20,7 @@ export const tasks = () => {
       }
     })
 
-  task('setDefaultTokenUri', 'Set Defatul token URI')
+  task('set-default-token-uri', 'Set Defatul token URI')
     .addParam('uri', 'Token URI')
     .setAction(async ({uri}, {deployments, ethers, network}) => {
       const [admin]: SignerWithAddress[] = await ethers.getSigners()
@@ -36,7 +36,7 @@ export const tasks = () => {
       }
     })
 
-  task('setMetisVote', 'Set Metis Vote Contract')
+  task('set-metis-vote', 'Set Metis Vote Contract')
     .addParam('address', 'Metis Vote Contract address')
     .setAction(async ({address}, {deployments, ethers, network}) => {
       const [admin]: SignerWithAddress[] = await ethers.getSigners()
