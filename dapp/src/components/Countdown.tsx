@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const CountDown = ({ epochTime, votationName, onFinishCounter }: { epochTime: number, votationName: string, onFinishCounter: () => void }) => {
+export const CountDown = ({ epochTime, onFinishCounter }: { epochTime: number, onFinishCounter: () => void }) => {
     const [timeRemaining, setTimeRemaining] = useState({
         days: 0,
         hours: 0,
@@ -42,7 +42,7 @@ export const CountDown = ({ epochTime, votationName, onFinishCounter }: { epochT
     }
 
     return <div className="flex flex-col">
-        <h2 className="text-center text-white text-3xl mb-8">Time remaining until <span className="font-bold">{votationName}</span> voting</h2>
+        <h2 className="text-center text-white text-3xl mb-8">Time remaining until votation start</h2>
         <div className="grid grid-flow-col gap-10 text-center text-white  auto-cols-max">
             <div className="flex flex-col text-3xl">
                 <span className="countdown font-mono text-8xl">

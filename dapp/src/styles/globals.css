@@ -15,10 +15,3 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
-
-body {
-  /* color: rgb(var(--foreground-rgb));
-  background: url('../../public/bg.png') no-repeat center center;
-  background-size: cover; */
-  overflow-y: hidden;
-}

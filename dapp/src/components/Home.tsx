@@ -1,8 +1,22 @@
 import { useEffect, useState } from "react";
 import { Loader } from "./Loader";
 import { useRouter } from "next/router";
+import { useVoteContract } from "@/hooks/useVoteContract";
 
 export const Home = () => {
+    const { electionIdCounter } = useVoteContract();
+
+    const getLast3Events = () => {
+        if (!electionIdCounter) return [];
+        const events = [];
+
+        for (let index = Number(electionIdCounter); index > (Number(electionIdCounter) - 3) && index > 0; index--) {
+            events.push(index - 1);
+        }
+
+        return events;
+    }
+
     return (
         <div className="h-screen w-full bg-white">
             <main>
@@ -14,15 +28,17 @@ export const Home = () => {
                 </div>
 
                 <section className="bg-white dark:bg-gray-900">
-                    <div className="container mx-auto px-6 pt-28">
+                    <div className="container mx-auto px-6 py-28">
                         <h1 className="text-2xl font-semibold text-gray-800 dark:text-white lg:text-4xl">Latest votings</h1>
 
                         <div className="mt-8 lg:-mx-12 lg:flex xl:mt-16">
                             <div className="mt-8 flex-1 lg:mx-12 lg:mt-0">
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                                    <HomeCard />
-                                    <HomeCard />
-                                    <HomeCard />
+                                    {
+                                        getLast3Events().map((votationId) => (
+                                            <HomeCard votationId={votationId} />
+                                        ))
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -68,20 +84,20 @@ const useRandomImage = () => {
     return { image, isFetchingImage };
 };
 
-const HomeCard = () => {
+const HomeCard = ({ votationId }: { votationId: number }) => {
     const { image, isFetchingImage } = useRandomImage();
     const router = useRouter();
 
     return (
         <div>
-            <div className="flex justify-center items-center h-96 w-full overflow-hidden" onClick={() => router.push('1')}>
+            <div className="flex justify-center items-center h-96 w-full overflow-hidden" onClick={() => router.push(`/${votationId}`)}>
                 {isFetchingImage ? (
                     <Loader />
                 ) : (
                     <img className="h-96 w-full rounded-lg object-fill cursor-pointer hover:scale-105  transition-all" src={image} alt="Cover Image" style={{ objectFit: 'fill' }} />
                 )}
             </div>
-            <h2 className="mt-4 text-2xl font-semibold capitalize text-gray-800 dark:text-white">Random Name</h2>
+            <h2 className="mt-4 text-2xl font-semibold capitalize text-gray-800 dark:text-white">Votation {votationId + 1}</h2>
         </div>
     );
 };

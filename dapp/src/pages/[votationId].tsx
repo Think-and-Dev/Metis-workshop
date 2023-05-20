@@ -2,16 +2,23 @@ import { Inter } from 'next/font/google'
 import { Card } from '@/components/Card'
 import { CountDown } from '@/components/Countdown'
 import { useState } from 'react'
+import { useVoteContract } from '@/hooks/useVoteContract'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function MainPage() {
     const [isVotationActive, setIsVotationActive] = useState(false)
-    const oneHourLaterUnixTimestamp = Math.floor(Date.now() / 1000) + 10;
+    const { getElectionById, getCandidatesById } = useVoteContract();
+
+    const election = getElectionById({ electionId: 0 })
+    const candidates = getCandidatesById({ electionId: 0 })
+
+    console.log("election", election)
+    console.log("candidates", candidates)
 
     return (
         <main
-            className={`flex flex-col w-full h-screen items-center  justify-between p-24 ${inter.className}`}
+            className={`flex flex-col w-full h-full overflow-x-hidden items-center  justify-between p-24 ${inter.className}`}
         >
             <div className='flex w-full h-full justify-center items-center'>
                 <div className='flex flex-row gap-48 justify-between'>
@@ -24,7 +31,7 @@ export default function MainPage() {
                                 "As your candidate, I promise to fight for the things that really matter, like making sure every day ends with a slice of cake. That's right, folks, under my leadership, dessert is not just for special occasions anymore! Let's have our cake and eat it too!"
                             } />
                         </>) : (
-                            <CountDown epochTime={oneHourLaterUnixTimestamp} votationName='random name' onFinishCounter={() => setIsVotationActive(true)} />
+                            <CountDown epochTime={election?.startTime || 0} onFinishCounter={() => setIsVotationActive(true)} />
                         )
                     }
                 </div>
