@@ -14,10 +14,17 @@ interface IMetisVote {
         uint256 endTime;
     }
 
-    struct Ballotage {
-        Candidate c1;
-        Candidate c2;
-    }
+    function isActiveElection(uint256 _electionId) external view returns (bool);
+
+    function getCandidateVotes(uint256 _electionId, address _candidate) external view returns (uint256);
+
+    function getCandidatesByElection(uint256 _electionId) external view returns (address[] memory);
+
+    function getCandidatesLengthByElection(uint256 _electionId) external view returns (uint256);
+
+    function registerVoter(uint256 _tokenId) external;
+
+    function vote(uint256 _electionId, address _candidate) external;
 
     event MetisVoteInitialized(address indexed _metisSBT);
     event ElectionCreated(bytes32 _position, uint256 _startTime, uint256 _endTime);

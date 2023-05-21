@@ -2,6 +2,8 @@
 pragma solidity ^0.8.18;
 
 interface IMetisSBT {
+    function claimSBT(uint256 _tokenId) external;
+
     function addVote(uint256 _electionId, uint256 _tokenId) external;
 
     event MetisSBTInitialized();
