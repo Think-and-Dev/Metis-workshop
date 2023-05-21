@@ -12,20 +12,25 @@ contract MetisVote is IMetisVote, Ownable {
     using Counters for Counters.Counter;
 
     address public immutable METIS_SBT;
-    Counters.Counter private _electionIdCounter;
+    Counters.Counter public _electionIdCounter;
 
     bytes32 public constant CANDIDATE_STATUS = keccak256("CANDIDATE_STATUS");
     bytes32 public constant ELECTED_STATUS = keccak256("ELECTED_STATUS");
 
     /// @dev ElectionId => Election
     mapping(uint256 => Election) public elections;
+
     ///@dev ElectionId => user => Candidate
     mapping(uint256 => mapping(address => Candidate)) public candidates;
+    CandidateInfo[] public candidateInfo;
+
     ///@dev Voter => MetisSBT
     mapping(address => uint256) public voters;
 
     constructor(address _metisSBT) validAddress(_metisSBT) {
         METIS_SBT = _metisSBT;
+        //Election ID must start with one and not zero.
+        _electionIdCounter.increment();
         emit MetisVoteInitialized(_metisSBT);
     }
 
@@ -45,6 +50,14 @@ contract MetisVote is IMetisVote, Ownable {
         return candidates[_electionId][_candidate].votes;
     }
 
+    function getCandidates() external view returns (CandidateInfo[] memory) {
+        return candidateInfo;
+    }
+
+    function getCandidatesLength() external view returns (uint256) {
+        return candidateInfo.length;
+    }
+
     /**************************** INTERFACE  ****************************/
 
     function createElection(bytes32 _position, uint256 _startTime, uint256 _endTime) external onlyOwner {
@@ -53,6 +66,7 @@ contract MetisVote is IMetisVote, Ownable {
         elections[_electionIdCounter.current()] = e;
 
         _electionIdCounter.increment();
+
         emit ElectionCreated(_position, _startTime, _endTime);
     }
 
@@ -93,11 +107,12 @@ contract MetisVote is IMetisVote, Ownable {
         emit Vote(_electionId, _candidate);
     }
 
-    /*
-    function closeElection(uint256 _electionId) external {
-
+    function closeElection(uint256 _electionId, address _candidate) external validAddress(_candidate) onlyOwner {
+        require(block.timestamp >= elections[_electionId].endTime, "MetisVote: Election not finished");
+        candidates[_electionId][_candidate].status = ELECTED_STATUS;
+        emit ElectionClosed(_electionId, _candidate, candidates[_electionId][_candidate].votes);
     }
-    */
+
     /**************************** INTERNALS  ****************************/
 
     function _addCandidate(uint256 _electionId, bytes32 _party, address _person) internal onlyOwner {
@@ -109,8 +124,11 @@ contract MetisVote is IMetisVote, Ownable {
         require(_person != address(0), "MetisVote: Invalid candidate address");
 
         Candidate memory newCandidate = Candidate({party: _party, status: CANDIDATE_STATUS, votes: 0});
+        CandidateInfo memory candInfo = CandidateInfo({candidate: _person, candidateId: _electionId});
 
         candidates[_electionId][_person] = newCandidate;
+        candidateInfo.push(candInfo);
+
         emit CandidateAdded(_electionId, _party, _person);
     }
 

@@ -8,6 +8,11 @@ interface IMetisVote {
         uint256 votes;
     }
 
+    struct CandidateInfo {
+        address candidate;
+        uint256 candidateId;
+    }
+
     struct Election {
         bytes32 position; //GOVERNADOR || PRESIDENTE || DIPUTADO
         uint256 startTime;
@@ -24,6 +29,7 @@ interface IMetisVote {
     event CandidateAdded(uint256 _electionId, bytes32 _party, address indexed _person);
     event Vote(uint256 indexed _electionId, address indexed _candidate);
     event VoterRegistered(address indexed voter, uint256 _tokenId);
+    event ElectionClosed(uint256 _electionId, address indexed _candidate, uint256 votes);
 
     error NotACandidate(address _candidate);
     error VoterNotRegistered();
