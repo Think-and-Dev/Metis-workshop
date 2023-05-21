@@ -22,7 +22,7 @@ contract MetisVote is IMetisVote, Ownable {
 
     ///@dev ElectionId => user => Candidate
     mapping(uint256 => mapping(address => Candidate)) public candidates;
-    CandidateInfo[] public candidateInfo;
+    mapping(uint256 => address[]) public candidatesPerElection;
 
     ///@dev Voter => MetisSBT
     mapping(address => uint256) public voters;
@@ -50,12 +50,12 @@ contract MetisVote is IMetisVote, Ownable {
         return candidates[_electionId][_candidate].votes;
     }
 
-    function getCandidates() external view returns (CandidateInfo[] memory) {
-        return candidateInfo;
+    function getCandidatesByElection(uint256 _electionId) external view returns (address[] memory) {
+        return candidatesPerElection[_electionId];
     }
 
-    function getCandidatesLength() external view returns (uint256) {
-        return candidateInfo.length;
+    function getCandidatesLengthByElection(uint256 _electionId) external view returns (uint256) {
+        return candidatesPerElection[_electionId].length;
     }
 
     /**************************** INTERFACE  ****************************/
@@ -92,10 +92,7 @@ contract MetisVote is IMetisVote, Ownable {
             elections[_electionId].startTime > 0 && elections[_electionId].endTime > 0,
             "MetisVote: Invalid Election"
         );
-        require(
-            _endTime > elections[_electionId].startTime && _endTime > elections[_electionId].endTime,
-            "MetisVote: Invalid new end time"
-        );
+        require(_endTime > elections[_electionId].startTime, "MetisVote: Invalid new end time");
         uint256 oldEndTime = elections[_electionId].endTime;
         elections[_electionId].endTime = _endTime;
 
@@ -156,10 +153,9 @@ contract MetisVote is IMetisVote, Ownable {
         require(_person != address(0), "MetisVote: Invalid candidate address");
 
         Candidate memory newCandidate = Candidate({party: _party, status: CANDIDATE_STATUS, votes: 0});
-        CandidateInfo memory candInfo = CandidateInfo({candidate: _person, electionId: _electionId});
 
         candidates[_electionId][_person] = newCandidate;
-        candidateInfo.push(candInfo);
+        candidatesPerElection[_electionId].push(_person);
 
         emit CandidateAdded(_electionId, _party, _person);
     }

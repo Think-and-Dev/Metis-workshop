@@ -8,11 +8,6 @@ interface IMetisVote {
         uint256 votes;
     }
 
-    struct CandidateInfo {
-        address candidate;
-        uint256 electionId;
-    }
-
     struct Election {
         bytes32 position; //GOVERNADOR || PRESIDENTE || DIPUTADO
         uint256 startTime;

@@ -5,7 +5,7 @@ import {Signer} from 'ethers'
 import {MetisSBT, MetisVote} from '../typechain-types'
 import {keccak256, toUtf8Bytes} from 'ethers/lib/utils'
 import {advanceTime, getBlockTimestamp} from '../utils'
-import {CANDIDATE_STATUS, ELECTION_POSITION, PARTY_ONE, PARTY_TWO} from './constants'
+import {CANDIDATE_STATUS, ELECTED_STATUS, ELECTION_POSITION, PARTY_ONE, PARTY_TWO} from './constants'
 
 describe('Metis SBT initial', () => {
   let deployer: Signer
@@ -47,7 +47,7 @@ describe('Metis SBT initial', () => {
   })
 
   it('Get Candidates should return zero array', async () => {
-    await expect(await MetisVote.getCandidatesLength()).to.be.equal('0')
+    await expect(await MetisVote.getCandidatesLengthByElection('1')).to.be.equal('0')
   })
 
   it('Should not allow to create election to anyone', async () => {
@@ -98,6 +98,12 @@ describe('Metis SBT initial', () => {
     await expect(MetisVote.connect(invalidSigner).vote('3', await invalidSigner.getAddress())).to.be.revertedWith(
       'MetisVote: Invalid Election'
     )
+  })
+
+  it('Get invalid candidate should revert', async () => {
+    await expect(MetisVote.getCandidateVotes('1', await invalidSigner.getAddress()))
+      .to.be.revertedWithCustomError(MetisVote, 'NotACandidate')
+      .withArgs(await invalidSigner.getAddress())
   })
 })
 
@@ -180,25 +186,21 @@ describe('Metis Vote interface', () => {
     const cand = (await ethers.getSigners())[15]
     //WHEN
     await MetisVote.addCandidate(electionId, party, await cand.getAddress())
-    const candidateInfo = await MetisVote.candidateInfo(0)
+    const candidateInfo = await MetisVote.candidatesPerElection('1', 0)
     const candidate = await MetisVote.candidates('1', await cand.getAddress())
 
     const candidateParty = candidate[0]
     const candidateStatus = candidate[1]
     const candidateVotes = candidate[2]
 
-    const candInfoAddress = candidateInfo[0]
-    const candInfoElectionId = candidateInfo[1]
-
     //THEN
-    expect(await MetisVote.getCandidatesLength()).to.be.equal('1')
+    expect((await MetisVote.getCandidatesByElection('1')).length).to.be.equal(1)
 
     expect(candidateParty).to.be.equal(party)
     expect(candidateStatus).to.be.equal(CANDIDATE_STATUS)
     expect(candidateVotes).to.be.equal('0')
 
-    expect(candInfoAddress).to.be.equal(await cand.getAddress())
-    expect(candInfoElectionId).to.be.equal(electionId)
+    expect(candidateInfo).to.be.equal(await cand.getAddress())
   })
 
   it('Add candidate should emit event', async () => {
@@ -237,12 +239,10 @@ describe('Metis Vote interface', () => {
   it('Could not vote if not active election', async () => {
     //GIVEN //WHEN
     const isActiveElectionOne = await MetisVote.isActiveElection('1')
-    const candidateOne = (await MetisVote.getCandidates())[0]
+    const candidateOne = (await MetisVote.getCandidatesByElection('1'))[0]
     expect(isActiveElectionOne).to.be.false
     //THEN
-    await expect(MetisVote.connect(userOne).vote('1', candidateOne[0])).to.be.revertedWith(
-      'MetisVote: Invalid Election'
-    )
+    await expect(MetisVote.connect(userOne).vote('1', candidateOne)).to.be.revertedWith('MetisVote: Invalid Election')
   })
 
   it('Could not vote if invalid candidate', async () => {
@@ -264,18 +264,18 @@ describe('Metis Vote interface', () => {
     )
   })
 
-  xit('Could not vote if user has not sbt', async () => {
-    const candidateOne = (await MetisVote.getCandidates())[0]
-    await expect(MetisVote.connect(invalidSigner).vote('1', candidateOne[0])).to.be.revertedWith(
+  it('Could not vote if user has not sbt', async () => {
+    const candidateOne = (await MetisVote.getCandidatesByElection('1'))[0]
+    await expect(MetisVote.connect(invalidSigner).vote('1', candidateOne)).to.be.revertedWith(
       'MetisVote: No vote allowed'
     )
   })
 
   it('Vote', async () => {
     //GIVEN
-    const candidates = await MetisVote.getCandidates()
-    const candidateOne = candidates[0][0]
-    const candidateTwo = candidates[1][0]
+    const candidates = await MetisVote.getCandidatesByElection('1')
+    const candidateOne = candidates[0]
+    const candidateTwo = candidates[1]
     const candidateOneVotes = await MetisVote.getCandidateVotes('1', candidateOne)
     const candidateTwoVotes = await MetisVote.getCandidateVotes('1', candidateTwo)
     //WHEN
@@ -290,7 +290,49 @@ describe('Metis Vote interface', () => {
     expect(newCandidateTwoVotes).to.be.equal('1')
   })
 
-  xit('Vote should emit event', async () => {})
+  it('Vote should emit event', async () => {
+    //GIVEN
+    const tokenId = '3'
+    expect(await MetisVote.connect(userThree).registerVoter(tokenId))
+    const candidateOne = (await MetisVote.getCandidatesByElection('1'))[0]
+    //WHEN //THEN
+    await expect(MetisVote.connect(userThree).vote('1', candidateOne))
+      .to.emit(MetisVote, 'Vote')
+      .withArgs('1', candidateOne)
+  })
 
-  xit('Close Election', async () => {})
+  it('Close Election', async () => {
+    //GIVEN
+    const isActiveElection = await MetisVote.isActiveElection('1')
+    expect(isActiveElection).to.be.true
+
+    await MetisVote.changeEndTimeElection('1', (await getBlockTimestamp()).add('1'))
+    await advanceTime(90000)
+
+    const isActiveElectionNow = await MetisVote.isActiveElection('1')
+    expect(isActiveElectionNow).to.be.false
+
+    //WHEN
+    const candidates = await MetisVote.getCandidatesByElection('1')
+
+    const candidateOneState = await MetisVote.candidates('1', candidates[0])
+    const candidateTwoState = await MetisVote.candidates('1', candidates[1])
+    expect(candidateOneState.status).to.be.equal(CANDIDATE_STATUS)
+    expect(candidateTwoState.status).to.be.equal(CANDIDATE_STATUS)
+
+    const candidateVotesOne = await MetisVote.getCandidateVotes('1', candidates[0])
+    const candidateVotesTwo = await MetisVote.getCandidateVotes('1', candidates[1])
+
+    await MetisVote.closeElection('1', candidates[0])
+
+    //THEN
+    const candidateOneNewState = await MetisVote.candidates('1', candidates[0])
+    const candidateTwoNewState = await MetisVote.candidates('1', candidates[1])
+    expect(candidateVotesOne).to.be.greaterThan(candidateVotesTwo)
+    expect(candidateVotesOne).to.be.equal('2')
+    expect(candidateOneNewState.status).to.be.equal(ELECTED_STATUS)
+
+    expect(candidateVotesTwo).to.be.equal('1')
+    expect(candidateTwoNewState.status).to.be.equal(CANDIDATE_STATUS)
+  })
 })
