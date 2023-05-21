@@ -7,6 +7,18 @@ import 'hardhat-contract-sizer'
 import networks from './hardhat.networks'
 import namedAccounts from './hardhat.accounts'
 
+import {tasks as addCandidateTasks} from './tasks/addCandidate'
+import {tasks as adminSBTTasks} from './tasks/adminSBT'
+import {tasks as createElectionTask} from './tasks/createElection'
+import {tasks as lazyMintTasks} from './tasks/lazyMint'
+import {tasks as mintTask} from './tasks/mint'
+
+addCandidateTasks()
+adminSBTTasks()
+createElectionTask()
+lazyMintTasks()
+mintTask()
+
 const config: HardhatUserConfig = {
   solidity: '0.8.18',
   networks,
