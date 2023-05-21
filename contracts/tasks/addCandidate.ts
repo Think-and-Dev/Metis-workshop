@@ -1,22 +1,21 @@
 import {HardhatRuntimeEnvironment} from 'hardhat/types'
+import chalk from 'chalk'
 import {task, types} from 'hardhat/config'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
-import {printError, printInfo, printSuccess} from '../utils'
 import {MetisVote} from '../typechain-types'
 
 const addCandidate = async (hre: HardhatRuntimeEnvironment, contract: string, electionId: string, party, person) => {
   const [admin]: SignerWithAddress[] = await hre.ethers.getSigners()
-  console.log(admin)
   const MetisVote: MetisVote = await hre.ethers.getContractAt('MetisVote', contract)
   const response = await MetisVote.connect(admin).addCandidate(electionId, party, person)
-  console.log(response)
-  //printInfo(`Transaction hash: ${response.hash}`)
-  // const receipt = await response.wait()
-  // if (receipt.status !== 0) {
-  //   printSuccess('Done!')
-  // } else {
-  //   printError('Failed!')
-  // }
+
+  console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
+  const receipt = await response.wait()
+  if (receipt.status !== 0) {
+    console.log(chalk.green('Done!'))
+  } else {
+    console.log(chalk.red('Failed!'))
+  }
 }
 
 export const tasks = () => {
@@ -38,12 +37,12 @@ export const tasks = () => {
       const MetisVote: MetisVote = await ethers.getContract('MetisVote')
       const response = await MetisVote.connect(admin).addCandidates(electionId, parties, candidates)
 
-      // printInfo(`Transaction hash: ${response.hash}`)
-      // const receipt = await response.wait()
-      // if (receipt.status !== 0) {
-      //   printSuccess('Done!')
-      // } else {
-      //   printError('Failed!')
-      // }
+      console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
+      const receipt = await response.wait()
+      if (receipt.status !== 0) {
+        console.log(chalk.green('Done!'))
+      } else {
+        console.log(chalk.red('Failed!'))
+      }
     })
 }

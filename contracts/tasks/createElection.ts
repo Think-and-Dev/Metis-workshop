@@ -1,6 +1,6 @@
 import {task} from 'hardhat/config'
+import chalk from 'chalk'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
-import {printError, printInfo, printSuccess} from '../utils'
 import {MetisVote} from '../typechain-types'
 
 export const tasks = () => {
@@ -13,12 +13,12 @@ export const tasks = () => {
       const MetisVote: MetisVote = await ethers.getContract('MetisVote')
       const response = await MetisVote.connect(admin).createElection(position, startTime, endTime)
 
-      // printInfo(`Transaction hash: ${response.hash}`)
-      // const receipt = await response.wait()
-      // if (receipt.status !== 0) {
-      //   printSuccess('Done!')
-      // } else {
-      //   printError('Failed!')
-      // }
+      console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
+      const receipt = await response.wait()
+      if (receipt.status !== 0) {
+        console.log(chalk.green('Done!'))
+      } else {
+        console.log(chalk.red('Failed!'))
+      }
     })
 }
