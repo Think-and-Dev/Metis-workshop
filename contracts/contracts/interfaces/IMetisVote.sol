@@ -10,7 +10,7 @@ interface IMetisVote {
 
     struct CandidateInfo {
         address candidate;
-        uint256 candidateId;
+        uint256 electionId;
     }
 
     struct Election {
@@ -26,6 +26,8 @@ interface IMetisVote {
 
     event MetisVoteInitialized(address indexed _metisSBT);
     event ElectionCreated(bytes32 _position, uint256 _startTime, uint256 _endTime);
+    event ElectionStartTimeUpdated(uint256 _electionId, uint256 _oldStartTime, uint256 _newStartTime);
+    event ElectionEndTimeUpdated(uint256 _electionId, uint256 _oldEndTime, uint256 _newEndTime);
     event CandidateAdded(uint256 _electionId, bytes32 _party, address indexed _person);
     event Vote(uint256 indexed _electionId, address indexed _candidate);
     event VoterRegistered(address indexed voter, uint256 _tokenId);

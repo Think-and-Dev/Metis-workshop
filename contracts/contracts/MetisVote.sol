@@ -70,6 +70,38 @@ contract MetisVote is IMetisVote, Ownable {
         emit ElectionCreated(_position, _startTime, _endTime);
     }
 
+    function changeStartTimeElection(uint256 _electionId, uint256 _startTime) external onlyOwner {
+        require(_electionId > 0, "MetisVote: Invalid Election id");
+        require(
+            elections[_electionId].startTime > 0 && elections[_electionId].endTime > 0,
+            "MetisVote: Invalid Election"
+        );
+        require(
+            _startTime >= block.timestamp && _startTime < elections[_electionId].endTime,
+            "MetisVote: Invalid new start time"
+        );
+        uint256 oldStartTime = elections[_electionId].startTime;
+        elections[_electionId].startTime = _startTime;
+
+        emit ElectionStartTimeUpdated(_electionId, oldStartTime, _startTime);
+    }
+
+    function changeEndTimeElection(uint256 _electionId, uint256 _endTime) external onlyOwner {
+        require(_electionId > 0, "MetisVote: Invalid Election id");
+        require(
+            elections[_electionId].startTime > 0 && elections[_electionId].endTime > 0,
+            "MetisVote: Invalid Election"
+        );
+        require(
+            _endTime > elections[_electionId].startTime && _endTime > elections[_electionId].endTime,
+            "MetisVote: Invalid new end time"
+        );
+        uint256 oldEndTime = elections[_electionId].endTime;
+        elections[_electionId].endTime = _endTime;
+
+        emit ElectionEndTimeUpdated(_electionId, oldEndTime, _endTime);
+    }
+
     function addCandidate(uint256 _electionId, bytes32 _party, address _person) external onlyOwner {
         _addCandidate(_electionId, _party, _person);
     }
@@ -124,7 +156,7 @@ contract MetisVote is IMetisVote, Ownable {
         require(_person != address(0), "MetisVote: Invalid candidate address");
 
         Candidate memory newCandidate = Candidate({party: _party, status: CANDIDATE_STATUS, votes: 0});
-        CandidateInfo memory candInfo = CandidateInfo({candidate: _person, candidateId: _electionId});
+        CandidateInfo memory candInfo = CandidateInfo({candidate: _person, electionId: _electionId});
 
         candidates[_electionId][_person] = newCandidate;
         candidateInfo.push(candInfo);
