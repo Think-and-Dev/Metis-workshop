@@ -152,8 +152,8 @@ describe('Metis Vote interface', () => {
   it('Create Election', async () => {
     //GIVEN
     const position = ELECTION_POSITION
-    const startTime = (await getBlockTimestamp()).add('3')
-    const endTime = (await getBlockTimestamp()).add('900000')
+    const startTime = (await getBlockTimestamp()).add('5')
+    const endTime = (await getBlockTimestamp()).add('90000000000')
     //WHEN
     await MetisVote.createElection(position, startTime, endTime)
     const Election = await MetisVote.elections('1')
@@ -248,6 +248,7 @@ describe('Metis Vote interface', () => {
   it('Could not vote if invalid candidate', async () => {
     //GIVEN
     const isActiveElectionOne = await MetisVote.isActiveElection('1')
+    await advanceTime(999904300)
     expect(isActiveElectionOne).to.be.true
 
     //WHEN //THEN
