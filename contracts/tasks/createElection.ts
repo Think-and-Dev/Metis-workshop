@@ -1,7 +1,8 @@
-import {task} from 'hardhat/config'
+import {task, types} from 'hardhat/config'
 import chalk from 'chalk'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import {MetisVote} from '../typechain-types'
+import {keccak256, toUtf8Bytes} from 'ethers/lib/utils'
 
 export const tasks = () => {
   task('create-election', 'Create Metis Election')
@@ -11,7 +12,9 @@ export const tasks = () => {
     .setAction(async ({position, startTime, endTime}, {ethers}) => {
       const [admin]: SignerWithAddress[] = await ethers.getSigners()
       const MetisVote: MetisVote = await ethers.getContract('MetisVote')
-      const response = await MetisVote.connect(admin).createElection(position, startTime, endTime)
+
+      const hashedPosition = keccak256(toUtf8Bytes(position))
+      const response = await MetisVote.connect(admin).createElection(hashedPosition, startTime, endTime)
 
       console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
       const receipt = await response.wait()
