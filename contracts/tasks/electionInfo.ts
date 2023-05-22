@@ -1,6 +1,5 @@
 import {task, types} from 'hardhat/config'
 import chalk from 'chalk'
-import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import {MetisVote} from '../typechain-types'
 
 export const tasks = () => {
