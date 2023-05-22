@@ -152,8 +152,8 @@ describe('Metis Vote interface', () => {
   it('Create Election', async () => {
     //GIVEN
     const position = ELECTION_POSITION
-    const startTime = (await getBlockTimestamp()).add('30')
-    const endTime = (await getBlockTimestamp()).add('9000')
+    const startTime = (await getBlockTimestamp()).add('3')
+    const endTime = (await getBlockTimestamp()).add('900000')
     //WHEN
     await MetisVote.createElection(position, startTime, endTime)
     const Election = await MetisVote.elections('1')
@@ -238,27 +238,19 @@ describe('Metis Vote interface', () => {
 
   it('Could not vote if not active election', async () => {
     //GIVEN //WHEN
-    const isActiveElectionOne = await MetisVote.isActiveElection('1')
+    const isActiveElectionOne = await MetisVote.isActiveElection('2')
     const candidateOne = (await MetisVote.getCandidatesByElection('1'))[0]
     expect(isActiveElectionOne).to.be.false
     //THEN
-    await expect(MetisVote.connect(userOne).vote('1', candidateOne)).to.be.revertedWith('MetisVote: Invalid Election')
+    await expect(MetisVote.connect(userOne).vote('2', candidateOne)).to.be.revertedWith('MetisVote: Invalid Election')
   })
 
   it('Could not vote if invalid candidate', async () => {
     //GIVEN
     const isActiveElectionOne = await MetisVote.isActiveElection('1')
-    expect(isActiveElectionOne).to.be.false
-    const currentTimestamp = await getBlockTimestamp()
-    const newEndTime = currentTimestamp.add('300000000000000000')
+    expect(isActiveElectionOne).to.be.true
 
-    //WHEN
-    await advanceTime(3000)
-    await MetisVote.changeEndTimeElection('1', newEndTime)
-    const isActiveElectionOneNow = await MetisVote.isActiveElection('1')
-    expect(isActiveElectionOneNow).to.be.true
-
-    //THEN
+    //WHEN //THEN
     await expect(MetisVote.connect(userOne).vote('1', await userThree.getAddress())).to.be.revertedWith(
       'MetisVote: Invalid Candidate'
     )

@@ -99,15 +99,19 @@ export const useVoteContract = () => {
         },
     })
 
-    const registerVoter = useContractWrite({
-        address: `0x${METIS_VOTE_ADDRESS}`,
-        abi: metisVoteContract.abi,
-        functionName: "registerVoter",
-        onError: (error) => {
-            const moreThan80Chars = error.message.length > 80;
-            toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
-        },
-    })
+
+    const registerVoter = ({tokenId}: {tokenId: number }) => {
+        return useContractWrite({
+            address: `0x${METIS_VOTE_ADDRESS}`,
+            abi: metisVoteContract.abi,
+            functionName: "registerVoter",
+            args: [tokenId],
+            onError: (error) => {
+                const moreThan80Chars = error.message.length > 80;
+                toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
+            },
+        })
+    }
 
     return {
         electionIdCounter,
