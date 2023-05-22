@@ -1,6 +1,6 @@
+import chalk from 'chalk'
 import {task} from 'hardhat/config'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
-import {printError, printInfo, printSuccess} from '../utils'
 import {MetisSBT} from '../typechain-types'
 
 export const tasks = () => {
@@ -11,13 +11,13 @@ export const tasks = () => {
       const MetisSBT: MetisSBT = await ethers.getContract('MetisSBT')
       const response = await MetisSBT.connect(admin).setContractURI(uri)
 
-      // printInfo(`Transaction hash: ${response.hash}`)
-      // const receipt = await response.wait()
-      // if (receipt.status !== 0) {
-      //   printSuccess('Done!')
-      // } else {
-      //   printError('Failed!')
-      // }
+      console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
+      const receipt = await response.wait()
+      if (receipt.status !== 0) {
+        console.log(chalk.green('Done!'))
+      } else {
+        console.log(chalk.red('Failed!'))
+      }
     })
 
   task('set-default-token-uri', 'Set Defatul token URI')
@@ -27,13 +27,13 @@ export const tasks = () => {
       const MetisSBT: MetisSBT = await ethers.getContract('MetisSBT')
       const response = await MetisSBT.connect(admin).setDefaultTokenURI(uri)
 
-      // printInfo(`Transaction hash: ${response.hash}`)
-      // const receipt = await response.wait()
-      // if (receipt.status !== 0) {
-      //   printSuccess('Done!')
-      // } else {
-      //   printError('Failed!')
-      // }
+      console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
+      const receipt = await response.wait()
+      if (receipt.status !== 0) {
+        console.log(chalk.green('Done!'))
+      } else {
+        console.log(chalk.red('Failed!'))
+      }
     })
 
   task('set-metis-vote', 'Set Metis Vote Contract')
@@ -43,12 +43,12 @@ export const tasks = () => {
       const MetisSBT: MetisSBT = await ethers.getContract('MetisSBT')
       const response = await MetisSBT.connect(admin).setMetisVote(address)
 
-      // printInfo(`Transaction hash: ${response.hash}`)
-      // const receipt = await response.wait()
-      // if (receipt.status !== 0) {
-      //   printSuccess('Done!')
-      // } else {
-      //   printError('Failed!')
-      // }
+      console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
+      const receipt = await response.wait()
+      if (receipt.status !== 0) {
+        console.log(chalk.green('Done!'))
+      } else {
+        console.log(chalk.red('Failed!'))
+      }
     })
 }

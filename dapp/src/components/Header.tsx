@@ -15,8 +15,18 @@ export const Header = () => {
     }
 
     return <div className="navbar bg-base-100">
-        <div className="flex-1">
-            <a href="https://thinkanddev.com/" target="_blank" rel="noopener" className="btn btn-ghost normal-case text-xl">ThinkNDev</a>
+        <div className="flex-row">
+            <div>
+                <b>Metis Buidl Hour 2023</b>
+            </div>
+            <div>
+                <a href="https://thinkanddev.com/" target="_blank" rel="noopener" className="btn btn-ghost normal-case text-xl"><img alt='Think&Dev' src="./tyd/tyd_blue.png"/></a>
+            </div>
+            <div>
+            <a href="https://www.metis.io/" target="_blank" rel="noopener" className="btn btn-ghost normal-case text-xl">
+                <img alt='Metis' src="./metis/png/BlackGreen@3x.png"/>
+            </a>
+            </div>
         </div>
         {
             !isConnected ? <ConnectButton />
