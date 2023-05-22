@@ -10,11 +10,11 @@ export const Home = () => {
         if (!electionIdCounter) return [];
         const events = [];
 
-        for (let index = Number(electionIdCounter) - 1; index > (Number(electionIdCounter) - 3) && index > 0; index--) {
-            events.push(index - 1);
+        for (let index = 0; index < Number(electionIdCounter) - 1; index++) {
+            events.push(index);
         }
 
-        return events;
+        return events.reverse();
     }
 
     return (

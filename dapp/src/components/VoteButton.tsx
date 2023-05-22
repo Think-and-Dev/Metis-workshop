@@ -2,6 +2,7 @@ import { useAccount, useConnect } from "wagmi";
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { useSbtContract } from "@/hooks/useSbtContract";
 import { useVoteContract } from "@/hooks/useVoteContract";
+import { useEffect } from "react";
 
 interface IVoteButton {
     electionId: number;
@@ -10,14 +11,15 @@ interface IVoteButton {
 }
 
 export const VoteButton = (props: IVoteButton) => {
+    const { voteFor, electionId, candidateAddress } = props
+
     const { isConnected } = useAccount()
-    const { userHasSbt, claimSbt } = useSbtContract();
     const { connect } = useConnect({
         connector: new InjectedConnector(),
     })
-    const { vote } = useVoteContract();
 
-    const { voteFor, electionId, candidateAddress } = props;
+    const { userHasSbt, claimSbt, userSbtTokenId } = useSbtContract();
+    const { vote, registerVoter, alreadyRegisteredAsVoter } = useVoteContract();
 
     const handleClick = async () => {
         if (!isConnected) {
@@ -25,20 +27,30 @@ export const VoteButton = (props: IVoteButton) => {
             return;
         }
 
-        if (userHasSbt) {
+        if (!alreadyRegisteredAsVoter && userHasSbt && userSbtTokenId) {
+            registerVoter.write({
+                args: [userSbtTokenId]
+            })
+        }
+
+        if (alreadyRegisteredAsVoter && userHasSbt && userSbtTokenId) {
             vote.write({
                 args: [electionId, candidateAddress]
             });
         }
     }
 
-    //TODO: Verify if user has already voted
     return <>
         {
             false ? (<button className="btn btn-outline rounded-md" disabled={true}>You already voted</button>) : (
                 <>
                     {
-                        isConnected && <label htmlFor={!userHasSbt ? 'my-modal-3' : ''} className="btn btn-outline rounded-md" onClick={handleClick}> Vote for {voteFor}</label >
+                        isConnected && <label htmlFor={!userHasSbt ? 'my-modal-3' : ''} className="btn btn-outline rounded-md" onClick={handleClick}>
+                            {
+                                alreadyRegisteredAsVoter ?
+                                    <>Vote for {voteFor}</> : "Register as voter"
+                            }
+                        </label >
                     }
                     {
                         !userHasSbt && (

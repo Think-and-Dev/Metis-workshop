@@ -24,6 +24,13 @@ export const useVoteContract = () => {
         functionName: "_electionIdCounter"
     })
 
+    const { data: alreadyAVoter } = useContractRead({
+        address: `0x${METIS_VOTE_ADDRESS}`,
+        abi: metisVoteContract.abi,
+        enabled: !!address,
+        args: [address],
+        functionName: "voters"
+    })
 
     const getElectionById = useCallback(
         ({ electionId }: { electionId: number }) => {
@@ -97,24 +104,27 @@ export const useVoteContract = () => {
             const moreThan80Chars = error.message.length > 80;
             toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
         },
+        onSuccess: () => {
+            toast.success("Vote submitted successfully!");
+        }
     })
 
-
-    const registerVoter = ({tokenId}: {tokenId: number }) => {
-        return useContractWrite({
-            address: `0x${METIS_VOTE_ADDRESS}`,
-            abi: metisVoteContract.abi,
-            functionName: "registerVoter",
-            args: [tokenId],
-            onError: (error) => {
-                const moreThan80Chars = error.message.length > 80;
-                toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
-            },
-        })
-    }
+    const registerVoter = useContractWrite({
+        address: `0x${METIS_VOTE_ADDRESS}`,
+        abi: metisVoteContract.abi,
+        functionName: "registerVoter",
+        onError: (error) => {
+            const moreThan80Chars = error.message.length > 80;
+            toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
+        },
+        onSuccess: () => {
+            toast.success("Voter Registered!");
+        }
+    })
 
     return {
         electionIdCounter,
+        alreadyRegisteredAsVoter: alreadyAVoter ? true : false,
         isAddressContractOwner: isAddressContractOwner === address,
         getElectionById,
         getCandidatesByElection,

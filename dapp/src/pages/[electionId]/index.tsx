@@ -4,6 +4,8 @@ import { Card } from '@/components/Card'
 import { CountDown } from '@/components/Countdown'
 import { useVoteContract } from '@/hooks/useVoteContract'
 import { useRouter } from 'next/router'
+import { useSbtContract } from '@/hooks/useSbtContract'
+import { toast } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -12,11 +14,17 @@ function MainPage() {
     const electionId = router.query.electionId ? parseInt(router.query.electionId as string) : 0;
     const [isVotationActive, setIsVotationActive] = useState(false)
     const { getElectionById, getCandidatesByElection } = useVoteContract();
+    const { userAlreadyVote, userSbtTokenId } = useSbtContract();
     const election = getElectionById({ electionId: electionId })
     const candidates = getCandidatesByElection({ electionId: electionId })
 
     if (!election || candidates.length < 2) {
         router.replace('/')
+    }
+
+    if (userAlreadyVote({ electionId, userSbtTokenId })) {
+        toast('You already voted!')
+        router.push(`/${electionId}/stats`)
     }
 
     return (

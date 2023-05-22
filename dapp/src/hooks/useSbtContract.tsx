@@ -25,17 +25,42 @@ export const useSbtContract = () => {
         enabled: !!address,
     })
 
+    const { data: userSbtTokenId } = useContractRead({
+        address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
+        abi: metisSbtContract.abi,
+        enabled: !!address,
+        args: [address],
+        functionName: "userSBTs",
+    })
+
+    const { data: lastMintedSBT, refetch: refetchLastMintedSBT } = useContractRead({
+        address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
+        abi: metisSbtContract.abi,
+        functionName: "lastMintedSBT",
+    })
+
     const { data: tokenIdCounter, refetch: refetchTokenIdCounter } = useContractRead({
         address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
         abi: metisSbtContract.abi,
         functionName: "_tokenIdCounter",
     })
 
+    const getTokenUri = ({ tokenId }: { tokenId: number }) => {
+        const { data: tokenUri } = useContractRead({
+            address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
+            args: [tokenId],
+            enabled: !!tokenId,
+            abi: metisSbtContract.abi,
+            functionName: "tokenURI",
+        })
+        return tokenUri;
+    }
+
     const claimSbt = useContractWrite({
         address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
         abi: metisSbtContract.abi,
         functionName: 'claimSBT',
-        args: [1],
+        args: [Number(lastMintedSBT) + 1],
         onError: (error) => {
             const moreThan80Chars = error.message.length > 80;
             toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
@@ -44,11 +69,31 @@ export const useSbtContract = () => {
             toast.success(`SBT token minted to address : ${address}`);
             refetchBalanceOf();
             refetchTokenIdCounter();
+            refetchLastMintedSBT();
         }
     })
 
+    const userAlreadyVote = ({ electionId, userSbtTokenId }: { electionId: number, userSbtTokenId: number }) => {
+        const { data } = useContractRead({
+            address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
+            args: [electionId, userSbtTokenId],
+            enabled: !!electionId && !!userSbtTokenId,
+            abi: metisSbtContract.abi,
+            functionName: "votes",
+            onError: (error) => {
+                const moreThan80Chars = error.message.length > 80;
+                toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
+            },
+        })
+
+        return data;
+    }
+
     return {
         tokenIdCounter,
+        userSbtTokenId: Number(userSbtTokenId),
+        userAlreadyVote,
+        getTokenUri,
         isAddressContractOwner: isAddressContractOwner === address,
         userHasSbt: Number(userHasSbt) > 0,
         claimSbt
