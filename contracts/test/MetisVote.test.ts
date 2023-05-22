@@ -282,6 +282,13 @@ describe('Metis Vote interface', () => {
     expect(newCandidateTwoVotes).to.be.equal('1')
   })
 
+  it('Should not vote twice in same election', async () => {
+    const candidates = await MetisVote.getCandidatesByElection('1')
+    await expect(MetisVote.connect(userOne).vote('1', candidates[0]))
+      .to.be.revertedWithCustomError(MetisSBT, 'VoteAlreadyEmitted')
+      .withArgs('1')
+  })
+
   it('Vote should emit event', async () => {
     //GIVEN
     const tokenId = '3'

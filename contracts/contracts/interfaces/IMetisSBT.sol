@@ -15,4 +15,5 @@ interface IMetisSBT {
     event ClaimedSBT(address indexed user, uint256 tokenId);
 
     error TransferForbidden(string message);
+    error VoteAlreadyEmitted(uint256 _electionId);
 }

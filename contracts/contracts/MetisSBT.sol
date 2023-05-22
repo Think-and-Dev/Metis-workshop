@@ -114,6 +114,10 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
         require(lockedSBTs[_tokenId], "MetisSBT: token is free to mint");
         require(ownerOf(_tokenId) != address(0), "MetisSBT: token has no owner");
 
+        if (votes[_electionId][_tokenId]) {
+            revert VoteAlreadyEmitted(_electionId);
+        }
+
         votes[_electionId][_tokenId] = true;
 
         emit VoteAdded(_tokenId, _electionId);
