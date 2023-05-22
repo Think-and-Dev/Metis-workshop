@@ -20,6 +20,8 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
 
     mapping(uint256 => bool) private lockedSBTs;
     mapping(uint256 => bool) public availableToMint;
+    mapping(address => uint256) public userSBTs;
+
     uint256 public lastMintedSBT;
 
     //ELECTIONID -> USER -> FALSE | TRUE
@@ -102,6 +104,7 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
         availableToMint[_tokenId] = false;
         lockedSBTs[_tokenId] = true;
         _safeMint(msg.sender, _tokenId);
+        userSBTs[msg.sender] = _tokenId;
         lastMintedSBT = _tokenId;
         super._setTokenURI(_tokenId, defaultTokenUri);
 
@@ -135,6 +138,7 @@ contract MetisSBT is IMetisSBT, IERC5192, Ownable, ERC721URIStorage {
         _safeMint(_to, _tokenId);
         super._setTokenURI(_tokenId, _uri);
         lastMintedSBT = _tokenId;
+        userSBTs[msg.sender] = _tokenId;
 
         _tokenIdCounter.increment();
 
