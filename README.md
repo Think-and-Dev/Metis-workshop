@@ -4,10 +4,14 @@ Think & Dev & Metis Workshop.
 
 ### Contracts
 
-TODO: <INSERT DIAGRAM>
+1. MetisSBT.sol: SBT token to allow voting and register votes in MetisVote contract
 
-1. MetisSBT.sol:
-2. Voting.sol:
+2. Voting.sol: Voting contract with only MetisSBTs.
+
+![Diagram-part-one](./presentation/diagrams/diagram1.png)
+![Diagram-part-two](./presentation/diagrams/diagram2.png)
+![Diagram-part-three](./presentation/diagrams/diagram3.png)
+![Diagram-part-four](./presentation/diagrams/diagram4.png)
 
 #### Stack
 
@@ -126,7 +130,17 @@ npx hardhat add-candidate --election-id <electionId> --party <party> --person <p
 
 #### Stack
 
+- yarn
+- Next js
+- Tailwind css
+
 #### Commands
+
+- Run dev
+
+```bash
+yarn dev
+```
 
 ---
 
