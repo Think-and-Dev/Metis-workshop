@@ -104,10 +104,22 @@ npx hardhat create-election --position <position> --start-time <startTime> --end
 npx hardhat election-info --election-id <electionId> --network metis
 ```
 
+-- Set new start time election
+
+```bash
+npx hardhat set-new-start-time --election-id <electionId> --new-start-time <newStartTime> --network metis
+```
+
+-- Set new end time election
+
+```bash
+npx hardhat set-new-end-time --election-id <electionId> --new-end-time <newEndTime>  --network metis
+```
+
 -- Add candidate
 
 ```bash
-
+npx hardhat add-candidate --election-id <electionId> --party <party> --person <person> --network metis
 ```
 
 ### Dapp
