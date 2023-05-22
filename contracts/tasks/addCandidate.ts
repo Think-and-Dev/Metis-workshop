@@ -3,11 +3,14 @@ import chalk from 'chalk'
 import {task, types} from 'hardhat/config'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import {MetisVote} from '../typechain-types'
+import {keccak256, toUtf8Bytes} from 'ethers/lib/utils'
+import {getBlockTimestamp} from '../utils'
 
-const addCandidate = async (hre: HardhatRuntimeEnvironment, contract: string, electionId: string, party, person) => {
+const addCandidate = async (hre: HardhatRuntimeEnvironment, electionId: string, party: string, person: string) => {
   const [admin]: SignerWithAddress[] = await hre.ethers.getSigners()
-  const MetisVote: MetisVote = await hre.ethers.getContractAt('MetisVote', contract)
-  const response = await MetisVote.connect(admin).addCandidate(electionId, party, person)
+  const MetisVote: MetisVote = await hre.ethers.getContract('MetisVote')
+  const hashedParty = keccak256(toUtf8Bytes(party))
+  const response = await MetisVote.connect(admin).addCandidate(electionId, hashedParty, person)
 
   console.log(chalk.yellow(`Transaction hash: ${response.hash}`))
   const receipt = await response.wait()
@@ -20,12 +23,11 @@ const addCandidate = async (hre: HardhatRuntimeEnvironment, contract: string, el
 
 export const tasks = () => {
   task('add-candidate', 'Create Metis Candidate for Election')
-    .addParam('contract', 'MetisVote')
     .addParam('electionId', 'Election ID')
     .addParam('party', 'Party of the candidate')
     .addParam('person', 'address of the candidate')
-    .setAction(async ({contract, electionId, party, person}, hre) => {
-      await addCandidate(hre, contract, electionId, party, person)
+    .setAction(async ({electionId, party, person}, hre) => {
+      await addCandidate(hre, electionId, party, person)
     })
 
   task('add-candidates', 'Create Metis Candidates for same election')

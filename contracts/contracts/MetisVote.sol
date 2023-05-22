@@ -146,7 +146,7 @@ contract MetisVote is IMetisVote, Ownable {
 
     function _addCandidate(uint256 _electionId, bytes32 _party, address _person) internal onlyOwner {
         require(
-            elections[_electionId].startTime >= block.timestamp && block.timestamp < elections[_electionId].endTime,
+            block.timestamp >= elections[_electionId].startTime && block.timestamp < elections[_electionId].endTime,
             "MetisVote: Election no longer valid"
         );
         require(_party.length > 0, "MetisVote: Invalid party");
