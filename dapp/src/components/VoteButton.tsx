@@ -4,6 +4,8 @@ import { useSbtContract } from "@/hooks/useSbtContract";
 import { useVoteContract } from "@/hooks/useVoteContract";
 
 interface IVoteButton {
+    electionId: number;
+    candidateAddress: string;
     voteFor: string;
 }
 
@@ -15,12 +17,18 @@ export const VoteButton = (props: IVoteButton) => {
     })
     const { vote } = useVoteContract();
 
-    const { voteFor } = props;
+    const { voteFor, electionId, candidateAddress } = props;
 
     const handleClick = async () => {
         if (!isConnected) {
             connect();
             return;
+        }
+
+        if (userHasSbt) {
+            vote.write({
+                args: [electionId, candidateAddress]
+            });
         }
     }
 

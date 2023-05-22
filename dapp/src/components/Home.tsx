@@ -10,7 +10,7 @@ export const Home = () => {
         if (!electionIdCounter) return [];
         const events = [];
 
-        for (let index = Number(electionIdCounter); index > (Number(electionIdCounter) - 3) && index > 0; index--) {
+        for (let index = Number(electionIdCounter) - 1; index > (Number(electionIdCounter) - 3) && index > 0; index--) {
             events.push(index - 1);
         }
 
@@ -36,7 +36,7 @@ export const Home = () => {
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                                     {
                                         getLast3Events().map((votationId) => (
-                                            <HomeCard votationId={votationId} />
+                                            <HomeCard votationId={votationId} key={votationId} />
                                         ))
                                     }
                                 </div>
@@ -57,12 +57,8 @@ const useRandomImage = () => {
         const getRandomImage = async () => {
             try {
                 setIsFetchingImage(true);
-                const response = await fetch('https://api.api-ninjas.com/v1/randomimage?category=', {
+                const response = await fetch('https://picsum.photos/600', {
                     method: "GET",
-                    headers: {
-                        'X-Api-Key': process.env.NEXT_PUBLIC_RANDOM_IMAGE_API_KEY || "",
-                        'Accept': 'image/jpg'
-                    },
                 });
 
                 const imageBlob = await response.blob();
@@ -90,7 +86,7 @@ const HomeCard = ({ votationId }: { votationId: number }) => {
 
     return (
         <div>
-            <div className="flex justify-center items-center h-96 w-full overflow-hidden" onClick={() => router.push(`/${votationId}`)}>
+            <div className="flex justify-center items-center h-96 w-full overflow-hidden" onClick={() => router.push(`/${votationId + 1}`)}>
                 {isFetchingImage ? (
                     <Loader />
                 ) : (

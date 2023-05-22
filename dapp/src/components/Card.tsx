@@ -1,13 +1,15 @@
 import { VoteButton } from "./VoteButton";
 
 interface ICard {
+    electionId: number;
     candidateName: string;
+    candidateAddress: string;
     imgSource: string;
     proposal: string;
 }
 
 export const Card = (cardProps: ICard) => {
-    const { candidateName, imgSource, proposal } = cardProps;
+    const { electionId, candidateName, imgSource, proposal, candidateAddress } = cardProps;
 
     return <div className="flex flex-col justify-center items-center">
         <div className="relative flex flex-col justify-between items-center rounded-[20px] w-[500px] h-[600px] mx-auto p-4 bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
@@ -22,11 +24,12 @@ export const Card = (cardProps: ICard) => {
                     {candidateName}
                 </h4>
                 <p className="text-base font-normal text-gray-600">Product Manager</p>
+                <p className="text-xs text-center text-gray-400 py-2">Address : {candidateAddress}</p>
             </div>
             <div className="text-center text-gray-500 mt-6 mb-3 flex gap-14 md:!gap-14 px-3">
                 <p>{proposal}</p>
             </div>
-            <VoteButton voteFor={candidateName} />
+            <VoteButton electionId={electionId} voteFor={candidateName} candidateAddress={candidateAddress} />
         </div>
     </div>
 }
