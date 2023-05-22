@@ -72,6 +72,44 @@ yarn abis
 yarn size
 ```
 
+#### Tasks
+
+- Set MetisVote contrat in MetisSBT
+
+```bash
+npx hardhat set-metis-vote --address <metis-vote-address> --network metis
+```
+
+- Set default token uri
+
+```bash
+npx hardhat set-default-token-uri --uri <uri> --network metis
+```
+
+- Lazy mint batch
+
+```bash
+npx hardhat lazy-mint-batch --quantity -<quantity> --network metis
+```
+
+-- Create Election
+
+```bash
+npx hardhat create-election --position <position> --start-time <startTime> --end-time <endTime> --network metis
+```
+
+-- Election Info
+
+```bash
+npx hardhat election-info --election-id <electionId> --network metis
+```
+
+-- Add candidate
+
+```bash
+
+```
+
 ### Dapp
 
 #### Stack

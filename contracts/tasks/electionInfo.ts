@@ -9,8 +9,22 @@ export const tasks = () => {
       const MetisVote: MetisVote = await ethers.getContract('MetisVote')
 
       const electionInfo = await MetisVote.elections(electionId)
+      const isActive = await MetisVote.isActiveElection(electionId)
 
-      console.log(chalk.yellow('Election Info'))
-      console.log(chalk.yellow(electionInfo))
+      console.log(chalk.yellow('---------- Election Info ----------'))
+      if (isActive) {
+        console.log(chalk.green('ACTIVE ELECTON'))
+      } else {
+        console.log(chalk.red('NOT ACTIVE ELECTION'))
+      }
+
+      console.log(chalk.green('---------- ELECTION POSITION ----------'))
+      console.log(chalk.yellow(electionInfo[0]))
+
+      console.log(chalk.green('---------- ELECTION START TIME ----------'))
+      console.log(chalk.yellow(electionInfo[1]))
+
+      console.log(chalk.green('---------- ELECTION END TIME ----------'))
+      console.log(chalk.yellow(electionInfo[2]))
     })
 }
