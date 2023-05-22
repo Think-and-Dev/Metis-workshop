@@ -3,6 +3,7 @@ import { InjectedConnector } from 'wagmi/connectors/injected'
 import { useSbtContract } from "@/hooks/useSbtContract";
 import { useVoteContract } from "@/hooks/useVoteContract";
 import { useEffect } from "react";
+import { Loader } from "./Loader";
 
 interface IVoteButton {
     electionId: number;
@@ -19,7 +20,14 @@ export const VoteButton = (props: IVoteButton) => {
     })
 
     const { userHasSbt, claimSbt, userSbtTokenId } = useSbtContract();
-    const { vote, registerVoter, alreadyRegisteredAsVoter } = useVoteContract();
+    const { vote, registerVoter, alreadyRegisteredAsVoter, refetchAlreadyAVoter } = useVoteContract({ electionId });
+
+    useEffect(() => {
+        if (registerVoter.isSuccess) {
+            refetchAlreadyAVoter();
+        }
+    }, [registerVoter.isSuccess]);
+
 
     const handleClick = async () => {
         if (!isConnected) {
@@ -42,33 +50,32 @@ export const VoteButton = (props: IVoteButton) => {
 
     return <>
         {
-            false ? (<button className="btn btn-outline rounded-md" disabled={true}>You already voted</button>) : (
-                <>
-                    {
-                        isConnected && <label htmlFor={!userHasSbt ? 'my-modal-3' : ''} className="btn btn-outline rounded-md" onClick={handleClick}>
-                            {
-                                alreadyRegisteredAsVoter ?
-                                    <>Vote for {voteFor}</> : "Register as voter"
-                            }
-                        </label >
-                    }
-                    {
-                        !userHasSbt && (
-                            <>
-                                <input type="checkbox" id={!userHasSbt ? 'my-modal-3' : ''} className="modal-toggle" />
-                                <div className="modal">
-                                    <div className="modal-box relative text-center">
-                                        <label htmlFor="my-modal-3" className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-                                        <h3 className="text-lg font-bold">Mint a SBT token</h3>
-                                        <p className="py-4">You need a SBT token in order to be able to vote for {voteFor}</p>
-                                        <button disabled={claimSbt.isLoading} onClick={() => claimSbt.write()} className="btn rounded-md">MINT SBT</button>
-                                    </div>
+            <div>
+                {
+                    isConnected &&
+                    <label htmlFor={!userHasSbt ? 'my-modal-3' : ''} className="btn btn-outline rounded-md text-black" onClick={handleClick}>
+                        {
+                            claimSbt.isLoading || registerVoter.isLoading || vote.isLoading ? <Loader /> : alreadyRegisteredAsVoter ?
+                                <>Vote for {voteFor}</> : "Register as voter"
+                        }
+                    </label >
+                }
+                {
+                    !userHasSbt && (
+                        <>
+                            <input type="checkbox" id={!userHasSbt ? 'my-modal-3' : ''} className="modal-toggle" />
+                            <div className="modal">
+                                <div className="modal-box relative text-center">
+                                    <label htmlFor="my-modal-3" className="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+                                    <h3 className="text-lg font-bold">Mint a SBT token</h3>
+                                    <p className="py-4">You need a SBT token in order to be able to vote for {voteFor}</p>
+                                    <button disabled={claimSbt.isLoading} onClick={() => claimSbt.write()} className="btn rounded-md">MINT SBT</button>
                                 </div>
-                            </>
-                        )
-                    }
-                </>
-            )
+                            </div>
+                        </>
+                    )
+                }
+            </div>
         }
     </>
 }

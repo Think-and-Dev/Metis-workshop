@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useVoteContract } from "@/hooks/useVoteContract";
 
 export const Home = () => {
-    const { electionIdCounter } = useVoteContract();
+    const { electionIdCounter } = useVoteContract({});
 
     const getLast3Events = () => {
         if (!electionIdCounter) return [];
@@ -22,14 +22,14 @@ export const Home = () => {
             <main>
                 <div className="container mx-auto px-6 py-16 pt-28 text-center">
                     <div className="mx-auto max-w-lg">
-                        <h1 className="text-3xl font-bold text-gray-800 dark:text-white md:text-4xl">Voting System Interface with Blockchain Power</h1>
-                        <p className="mt-6 text-gray-500 dark:text-gray-300">Empowering citizens through secure and transparent digital voting solutions.</p>
+                        <h1 className="text-3xl font-bold text-gray-800  md:text-4xl">Voting System Interface with Blockchain Power</h1>
+                        <p className="mt-6 text-gray-500 ">Empowering citizens through secure and transparent digital voting solutions.</p>
                     </div>
                 </div>
 
-                <section className="bg-white dark:bg-gray-900">
+                <section className="bg-white">
                     <div className="container mx-auto px-6 py-28">
-                        <h1 className="text-2xl font-semibold text-gray-800 dark:text-white lg:text-4xl">Latest votings</h1>
+                        <h1 className="text-2xl font-semibold text-gray-800 lg:text-4xl">Latest votings</h1>
 
                         <div className="mt-8 lg:-mx-12 lg:flex xl:mt-16">
                             <div className="mt-8 flex-1 lg:mx-12 lg:mt-0">
@@ -93,7 +93,7 @@ const HomeCard = ({ votationId }: { votationId: number }) => {
                     <img className="h-96 w-full rounded-lg object-fill cursor-pointer hover:scale-105  transition-all" src={image} alt="Cover Image" style={{ objectFit: 'fill' }} />
                 )}
             </div>
-            <h2 className="mt-4 text-2xl font-semibold capitalize text-gray-800 dark:text-white">Votation {votationId + 1}</h2>
+            <h2 className="mt-4 text-2xl font-semibold capitalize text-gray-800">Votation {votationId + 1}</h2>
         </div>
     );
 };

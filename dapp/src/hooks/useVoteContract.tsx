@@ -2,10 +2,10 @@ import { useAccount, useContractRead, useContractWrite } from "wagmi"
 import { toast } from 'sonner'
 import { METIS_VOTE_ADDRESS } from "./constants"
 import metisVoteContract from "../../../contracts/deployments/metis/MetisVote.json"
-import { useCallback, useEffect } from "react"
-import { parseToElection } from "@/types/metisVote"
+import { useEffect } from "react"
+import { parseToCandidates, parseToElection } from "@/types/metisVote"
 
-export const useVoteContract = () => {
+export const useVoteContract = ({ electionId }: { electionId?: number }) => {
     const { address } = useAccount()
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export const useVoteContract = () => {
         functionName: "_electionIdCounter"
     })
 
-    const { data: alreadyAVoter } = useContractRead({
+    const { data: alreadyAVoter, refetch : refetchAlreadyAVoter} = useContractRead({
         address: `0x${METIS_VOTE_ADDRESS}`,
         abi: metisVoteContract.abi,
         enabled: !!address,
@@ -32,51 +32,41 @@ export const useVoteContract = () => {
         functionName: "voters"
     })
 
-    const getElectionById = useCallback(
-        ({ electionId }: { electionId: number }) => {
-            const election = useContractRead({
-                address: `0x${METIS_VOTE_ADDRESS}`,
-                abi: metisVoteContract.abi,
-                functionName: "elections",
-                enabled: !!electionId,
-                args: [electionId],
-                onError: (error) => {
-                    const moreThan80Chars = error.message.length > 80;
-                    toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
-                },
-                staleTime: Infinity,
-                cacheTime: Infinity,
-            });
-
-            if (!election) {
-                return null;
-            }
-
-            return parseToElection(election);
+    const isElectionActive = useContractRead({
+        address: `0x${METIS_VOTE_ADDRESS}`,
+        abi: metisVoteContract.abi,
+        functionName: "isActiveElection",
+        enabled: !!electionId,
+        args: [electionId],
+        onError: (error) => {
+            const moreThan80Chars = error.message.length > 80;
+            toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
         },
-        []
-    );
+    });
 
-    const getCandidatesByElection = ({ electionId }: { electionId: number }): string[] => {
-        const { data: candidates } = useContractRead({
-            address: `0x${METIS_VOTE_ADDRESS}`,
-            abi: metisVoteContract.abi,
-            functionName: 'getCandidatesByElection',
-            enabled: !!electionId,
-            args: [electionId],
-            onError: (error) => {
-                const moreThan80Chars = error.message.length > 80;
-                toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
-            },
-            staleTime: Infinity,
-            cacheTime: Infinity,
-        })
-        if (!candidates) {
-            return []
-        }
+    const election = useContractRead({
+        address: `0x${METIS_VOTE_ADDRESS}`,
+        abi: metisVoteContract.abi,
+        functionName: "elections",
+        enabled: !!electionId,
+        args: [electionId],
+        onError: (error) => {
+            const moreThan80Chars = error.message.length > 80;
+            toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
+        },
+    })
 
-        return candidates as Array<string>;
-    }
+    const candidates = useContractRead({
+        address: `0x${METIS_VOTE_ADDRESS}`,
+        abi: metisVoteContract.abi,
+        functionName: 'getCandidatesByElection',
+        enabled: !!electionId,
+        args: [electionId],
+        onError: (error) => {
+            const moreThan80Chars = error.message.length > 80;
+            toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
+        },
+    })
 
     const getCandidateVotes = ({ electionId, candidateAddress }: { electionId: number, candidateAddress: string }): number => {
         const { data: candidateVotes } = useContractRead({
@@ -124,12 +114,15 @@ export const useVoteContract = () => {
 
     return {
         electionIdCounter,
+        election: parseToElection(election.data),
+        candidates: parseToCandidates(candidates.data || []),
         alreadyRegisteredAsVoter: alreadyAVoter ? true : false,
+        refetchAlreadyAVoter,
         isAddressContractOwner: isAddressContractOwner === address,
-        getElectionById,
-        getCandidatesByElection,
+        isElectionActive,
         vote,
         registerVoter,
         getCandidateVotes
     }
 }
+

@@ -1,10 +1,8 @@
-export function bytes32ToString(bytes32: string): string {
-    const strippedBytes = bytes32.replace(/^0+/, '');
+import { BytesLike, parseBytes32String } from 'ethers/lib/utils'
 
-    const byteCharacters = strippedBytes.match(/.{1,2}/g);
-    const byteValues = byteCharacters?.map((byte) => parseInt(byte, 16));
+export function bytes32ToString(bytes32: BytesLike): string {
+    if (!bytes32) return "";
 
-    const string = String.fromCharCode(...byteValues || []);
-
-    return string || "";
+    return ""
+    // return parseBytes32String(bytes32)
 }

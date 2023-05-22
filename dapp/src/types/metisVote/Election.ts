@@ -8,6 +8,8 @@ export interface Election {
 
 
 export const parseToElection = (election: any): Election => {
+    if (!election) return {} as Election;
+
     return {
         position: bytes32ToString(election[0] || ""),
         startTime: Number(election[1]),
