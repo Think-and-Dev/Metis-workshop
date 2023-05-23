@@ -56,7 +56,7 @@ const Stats: NextPage = () => {
 
     return <>
         <h2 className='mt-16 text-center text-white font-bold text-5xl'>Status of Election {electionId}</h2>
-        <div className='w-screen h-[800px] overflow-hidden flex justify-center items-center '>
+        <div className='w-screen h-[400px] overflow-hidden flex justify-center items-center '>
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart width={800} height={800} style={{ transform: 'scale(2)' }}>
                     <Pie
