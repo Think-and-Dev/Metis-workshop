@@ -142,6 +142,18 @@ npx hardhat add-candidate --election-id <electionId> --party <party> --person <p
 yarn dev
 ```
 
+- Run build
+
+```bash
+yarn build
+```
+
+- Run linter
+
+```bash
+yarn lint
+```
+
 ---
 
 ### Authors
