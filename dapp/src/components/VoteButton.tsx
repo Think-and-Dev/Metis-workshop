@@ -4,6 +4,7 @@ import { useSbtContract } from "@/hooks/useSbtContract";
 import { useVoteContract } from "@/hooks/useVoteContract";
 import { useEffect } from "react";
 import { Loader } from "./Loader";
+import { useRouter } from "next/router";
 
 interface IVoteButton {
     electionId: number;
@@ -12,6 +13,7 @@ interface IVoteButton {
 }
 
 export const VoteButton = (props: IVoteButton) => {
+    const router = useRouter();
     const { voteFor, electionId, candidateAddress } = props
 
     const { isConnected } = useAccount()
@@ -26,7 +28,13 @@ export const VoteButton = (props: IVoteButton) => {
         if (registerVoter.isSuccess) {
             refetchAlreadyAVoter();
         }
-    }, [registerVoter.isSuccess]);
+
+        if (vote.isSuccess) {
+            setTimeout(() => {
+                router.push(`/${electionId}/stats/`)
+            }, 1000);
+        }
+    }, [registerVoter.isSuccess, vote.isSuccess]);
 
 
     const handleClick = async () => {

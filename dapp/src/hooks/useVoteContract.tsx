@@ -24,7 +24,7 @@ export const useVoteContract = ({ electionId }: { electionId?: number }) => {
         functionName: "_electionIdCounter"
     })
 
-    const { data: alreadyAVoter, refetch : refetchAlreadyAVoter} = useContractRead({
+    const { data: alreadyAVoter, refetch: refetchAlreadyAVoter } = useContractRead({
         address: `0x${METIS_VOTE_ADDRESS}`,
         abi: metisVoteContract.abi,
         enabled: !!address,
@@ -79,8 +79,6 @@ export const useVoteContract = ({ electionId }: { electionId?: number }) => {
                 const moreThan80Chars = error.message.length > 80;
                 toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
             },
-            staleTime: Infinity,
-            cacheTime: Infinity,
         })
 
         return Number(candidateVotes)

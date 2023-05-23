@@ -25,7 +25,7 @@ export const useSbtContract = () => {
         enabled: !!address,
     })
 
-    const { data: userSbtTokenId } = useContractRead({
+    const { data: userSbtTokenId, refetch : refetchUserSbtTokenId } = useContractRead({
         address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
         abi: metisSbtContract.abi,
         enabled: !!address,
@@ -66,15 +66,16 @@ export const useSbtContract = () => {
             toast.error(`${error.message.slice(0, 80)}${(moreThan80Chars ? '...' : '')}`);
         },
         onSuccess: () => {
-            toast.success(`SBT token minted to address : ${address}`);
             refetchBalanceOf();
             refetchTokenIdCounter();
             refetchLastMintedSBT();
+            refetchUserSbtTokenId();
+            toast.success(`SBT token minted to address : ${address}`);
         }
     })
 
     const userAlreadyVote = ({ electionId, userSbtTokenId }: { electionId: number, userSbtTokenId: number }) => {
-        const { data } = useContractRead({
+        const { data, refetch : refetchUserAlreadyVote } = useContractRead({
             address: `0x${metisSbtContract.address.slice(2, metisSbtContract.address.length)}`,
             args: [electionId, userSbtTokenId],
             enabled: !!electionId && !!userSbtTokenId,

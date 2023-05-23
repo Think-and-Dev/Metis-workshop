@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react'
 import { Inter } from 'next/font/google'
 import { Card } from '@/components/Card'
 import { CountDown } from '@/components/Countdown'
 import { useVoteContract } from '@/hooks/useVoteContract'
 import { useRouter } from 'next/router'
 import { useSbtContract } from '@/hooks/useSbtContract'
-import { toast } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
